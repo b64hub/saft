@@ -1,48 +1,96 @@
-This repository is an opinionated verison of the dx@scale template. It's to be used in github and is shipped with a devcontainer installed with all the dependencies.
+# Feature Toggling for Salesforce Development
 
-The rest of this readme comes from the dx@scale template.
+## Overview
 
-## Development
+Feature toggling, also known as feature flagging, is an essential technique for managing the release of new features in a controlled manner, especially in Salesforce development. This project provides a simple yet powerful framework for implementing feature toggling within your Salesforce environment using custom metadata and Apex code. By utilizing feature toggles, you can enable or disable features across different environments (development, testing, production) without needing to deploy new code.
 
-This project is using a scratch org development model. In order to contribute you will need to create a scratch org with and push all metadata configuration and code.
+## Why Feature Toggling?
 
-## Dependencies
+In a complex Salesforce development lifecycle, it's common to work across multiple environments, such as development, staging, and production. Feature toggling allows you to:
 
-- sfp cli
-- sf cli
+- **Safely introduce new features**: Roll out features to specific environments or user groups without impacting others.
+- **Quickly react to issues in production**: Disable a problematic feature instantly without redeploying or rolling back code.
+- **Parallel development**: Multiple features can be developed and tested concurrently without interfering with each other, even if they are part of the same codebase.
+- **Controlled rollouts**: Gradually release features to end users, starting with a small group before a full rollout.
 
-`npm i @salesforce/cli @flxblio/sfp`
+## How It Works
 
-## Scratch Org Setup
+This framework leverages Salesforce Custom Metadata Types to define features and their statuses. Apex code is then used to query and check the status of each feature in real-time, determining whether a feature should be enabled or disabled based on the environment.
 
-For this you will need to be authenticated to a Dev Hub org - this is typically the Production Org
+### Custom Metadata
 
-- Authenticate to the DevHub (Production Org)
+A custom metadata type, `Feature__mdt`, is used to define each feature toggle. The custom metadata should include the following fields:
 
-  You need to perform this step only once
+- **Feature Name (`Feature_Name__c`)**: A unique name for the feature.
+- **Is Enabled (`Is_Enabled__c`)**: A checkbox field that indicates whether the feature is currently enabled.
+- **Environment (`Environment__c`)**: A picklist or text field to specify the environment where this setting applies (e.g., Development, Staging, Production).
+- **Description (`Description__c`)**: (Optional) A brief description of what the feature does.
 
-  ```
-   sf org login device --setalias devhub
-  ```
+### Apex Code
 
-- Clone the repository
+The Apex code is responsible for querying the `Feature__mdt` custom metadata to determine the status of a feature. The framework provides a simple method to check whether a feature is enabled in the current environment:
 
-- There are two options: fetch a scratch org with package dependencies pre-installed, or create an empty scratch org
+```apex
+public class FeatureToggle {
+    
+    public static Boolean isFeatureEnabled(String featureName, String environment) {
+        Feature__mdt feature = [
+            SELECT Is_Enabled__c 
+            FROM Feature__mdt 
+            WHERE Feature_Name__c = :featureName 
+              AND Environment__c = :environment
+            LIMIT 1
+        ];
+        return feature != null ? feature.Is_Enabled__c : false;
+    }
+}
+```
 
-  - Option A: Fetch a scratch org from the pool [Preferred]
+### Usage Example
 
-    ```
+In your Salesforce code, you can easily check whether a feature should be enabled or not:
 
-    sfp pool fetch -t dev -a  <alias>
-    ```
+```apex
+if (FeatureToggle.isFeatureEnabled('New_UI', 'Production')) {
+    // Execute code for the new UI feature
+} else {
+    // Execute fallback or existing functionality
+}
+```
 
-  - Option B: Create a scratch org and install all dependencies
+### Deployment
 
-    ```
-    sf org create --definitionfile config/project-scratch-def.json --setalias <myScratchOrg> --targetdevhubusername <devhub-alias>
-    sfp dependency install -o <myScratchOrg> -v <devhub-alias>
+To deploy this feature toggling framework to your Salesforce environment:
 
-    Push the source code
-    sf deploy metadata -o <myScratchOrg>
+1. **Create the Custom Metadata Type**:
+   - Navigate to Setup > Custom Metadata Types > New Custom Metadata Type.
+   - Define the `Feature__mdt` type with the required fields.
 
-    ```
+2. **Add Metadata Records**:
+   - Create records under the `Feature__mdt` to define your features and their statuses per environment.
+
+3. **Add the Apex Class**:
+   - Copy the `FeatureToggle` class code provided above into a new Apex class in your Salesforce org.
+
+4. **Use the Feature Toggling in Your Code**:
+   - Implement the feature checks in your existing Apex codebase where needed.
+
+## Best Practices
+
+- **Feature Naming**: Use descriptive and unique names for your features to avoid conflicts and confusion.
+- **Environment Awareness**: Ensure that the `Environment__c` field accurately reflects the environment where the feature is toggled on or off.
+- **Version Control**: Track changes to your feature toggles and metadata in version control to maintain a history of what features were enabled when and where.
+- **Testing**: Regularly test your feature toggles in sandbox environments before deploying to production to ensure they work as expected.
+- **Monitoring**: Implement logging or monitoring to track when and where features are toggled, which can help in diagnosing issues.
+
+## Contributing
+
+Contributions to this project are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code follows Salesforce development best practices and is well-tested.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Support
+
+If you encounter any issues or have questions, feel free to open an issue on the GitHub repository or contact the maintainers directly.
