@@ -1,0 +1,25 @@
+name: "Publish Metrics for Scratch Org Pools"
+on:
+  workflow_dispatch:
+  # schedule:
+  # Every 30 minutes
+  # - cron: "30 * * * *"
+
+env:
+  SFPOWERSCRIPTS_DATADOG: "true"
+  SFPOWERSCRIPTS_DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+  SFPOWERSCRIPTS_DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"
+
+jobs:
+  publish:
+    name: "Publish Metrics"
+    runs-on: ubuntu-latest
+    container: ghcr.io/b64hub/sf-actions/sfdx-alpine:main
+    steps:
+      - name: "Authenticate Dev Hub"
+        run: |
+          echo "${{ secrets.DEVHUB_SFDX_AUTH_URL }}" > ./authfile
+          sf org login sfdx-url -f authfile -a devhub
+
+      - name: "Publish metrics"
+        run: sfpowerscripts pool:metrics:publish -v devhub

@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    allow:
+      - dependency-type: "development"
+      - dependency-type: "direct"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "*"
+        dependency-type: "development"
+      dependencies:
+        patterns:
+          - "*"
+        dependency-type: "production"
+    commit-message:
+      prefix: "npm: "
+
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    allow:
+      - dependency-name: "ghcr.io/flxbl-io/sfp-rc"
+    commit-message:
+      prefix: "docker: "

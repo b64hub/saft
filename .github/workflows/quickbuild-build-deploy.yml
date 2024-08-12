@@ -1,0 +1,43 @@
+name: "CI Pipeline - Auto Triggered"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src*"
+  workflow_dispatch:
+
+jobs:
+  quickbuild:
+    uses: b64hub/sf-actions/.github/workflows/quickbuild.yml@main
+    with:
+      datadog: true
+    secrets:
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+      DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+      DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"
+
+  deploy-dev:
+    uses: b64hub/sf-actions/.github/workflows/deploy.yml@main
+    needs: quickbuild
+    with:
+      org-alias: dev
+      datadog: true
+    secrets:
+      ENV_SFDX_AUTH_URL: ${{ secrets.DEV_SFDX_AUTH_URL }}
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+      DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+      DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"
+
+  build-publish:
+    uses: b64hub/sf-actions/.github/workflows/build-publish.yml@main
+    permissions:
+      packages: write
+      contents: write
+    with:
+      datadog: true
+    secrets:
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+      DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+      DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"

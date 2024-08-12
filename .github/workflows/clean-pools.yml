@@ -1,0 +1,20 @@
+name: "Scratch Org Pool Cleaner - Auto Scheduled"
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 13 * * *"
+
+jobs:
+  clean-pool:
+    strategy:
+      matrix:
+        pool-tag: [snapshot, ci, dev]
+    uses: b64hub/sf-actions/.github/workflows/clean-pool.yml@main
+    with:
+      pool-tag: ${{ matrix.pool-tag }}
+      datadog: true
+    secrets:
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+      DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+      DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"

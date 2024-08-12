@@ -1,0 +1,20 @@
+name: "CI Pipeline - Release Build - Auto Triggered"
+
+on:
+  push:
+    branches:
+      - release/**
+  workflow_dispatch:
+
+jobs:
+  build-publish:
+    uses: b64hub/sf-actions/.github/workflows/build-publish.yml@main
+    permissions:
+      packages: write
+      contents: write
+    secrets:
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+    env:
+      SFPOWERSCRIPTS_DATADOG: "true"
+      SFPOWERSCRIPTS_DATADOG_HOST: "${{ vars.DATADOG_HOST }}"
+      SFPOWERSCRIPTS_DATADOG_API_KEY: "${{ secrets.DATADOG_API_KEY }}"

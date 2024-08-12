@@ -1,0 +1,28 @@
+{
+  "orgName": "Company Scratch Org",
+  "edition": "Developer",
+  "hasSampleData": false,
+  "features": ["Communities", "EnableSetPasswordInApi"],
+  "language": "en_US",
+  "settings": {
+    "communitiesSettings": {
+      "enableNetworksEnabled": true
+    },
+    "experienceBundleSettings": {
+      "enableExperienceBundleMetadata": true
+    },
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    },
+    "pathAssistantSettings": {
+      "pathAssistantEnabled": true
+    },
+    "userEngagementSettings": {
+      "enableOrchestrationInSandbox": true,
+      "enableShowSalesforceUserAssist": false
+    }
+  }
+}
