@@ -1,4 +1,4 @@
-# Feature Toggling for Salesforce Development
+# SaFT - Salesforce Feature Toggling
 
 ## Overview
 
