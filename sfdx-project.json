@@ -3,11 +3,9 @@
     {
       "path": "./src",
       "package": "saft",
-      "versionName": "Version 1.0.0",
-      "versionNumber": "1.0.0.0"
-    },
-    {
-      "path": "./src-temp",
+      "versionName": "Version 0.1.0",
+      "versionNumber": "0.1.0.NEXT",
+      "versionDescription" : "Salesforce metadata feature toggling",
       "default": true
     }
   ],

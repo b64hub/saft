@@ -1,6 +1,10 @@
+.DS_Store
+
 .sfpowerscripts
 artifacts
 .sfdx
 .npmrc
 .sf
 node_modules
+
+**/examples

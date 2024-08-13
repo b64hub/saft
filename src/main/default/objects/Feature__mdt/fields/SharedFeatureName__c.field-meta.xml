@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SharedFeatureName__c</fullName>
+    <description>The &quot;True&quot; name of the feature. Which will be the same for multiple feature records with different environments</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>The &quot;True&quot; name of the feature. Which will be the same for multiple features records with different environments</inlineHelpText>
+    <label>SharedFeatureName</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
