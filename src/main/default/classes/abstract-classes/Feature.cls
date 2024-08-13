@@ -12,7 +12,7 @@ public abstract with sharing class Feature{
 
     public Boolean isEnabled(String featureName){
         if(!featureMap.containsKey(featureName)){
-            Boolean featureIsEnabled = FeatureManager.isEnabled(featureName);
+            Boolean featureIsEnabled = FeatureToggle.isEnabled(featureName);
             featureMap.put(featureName, featureIsEnabled);
         }
 

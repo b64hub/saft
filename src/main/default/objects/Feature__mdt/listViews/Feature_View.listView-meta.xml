@@ -4,7 +4,7 @@
     <columns>MasterLabel</columns>
     <columns>SharedFeatureName__c</columns>
     <columns>Environment__c</columns>
-    <columns>Enabled__c</columns>
+    <columns>Is_Enabled__c</columns>
     <columns>NamespacePrefix</columns>
     <filterScope>Everything</filterScope>
     <label>Feature View</label>
