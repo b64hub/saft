@@ -26,7 +26,7 @@ This framework leverages Salesforce Custom Metadata Types to define features and
 A custom metadata type, `Feature__mdt`, is used to define each feature toggle. The custom metadata should include the following fields:
 
 - **Feature Name (`Feature_Name__c`)**: A unique name for the feature.
-- **Is Enabled (`Is_Is_Enabled__c`)**: A checkbox field that indicates whether the feature is currently enabled.
+- **Is Enabled (`Is_Enabled__c`)**: A checkbox field that indicates whether the feature is currently enabled.
 - **Environment (`Environment__c`)**: A picklist or text field to specify the environment where this setting applies (e.g., Development, Staging, Production). Lookup to `Environment__mdt`.
 - **Description (`Description__c`)**: (Optional) A brief description of what the feature does.
 
@@ -43,13 +43,13 @@ public class FeatureToggle {
     
     public static Boolean isFeatureEnabled(String featureName, String environment) {
         Feature__mdt feature = [
-            SELECT Is_Is_Enabled__c 
+            SELECT Is_Enabled__c 
             FROM Feature__mdt 
             WHERE Feature_Name__c = :featureName 
               AND Environment__c = :environment
             LIMIT 1
         ];
-        return feature != null ? feature.Is_Is_Enabled__c : false;
+        return feature != null ? feature.Is_Enabled__c : false;
     }
 }
 ```
