@@ -1,4 +1,6 @@
-# SaFT - Salesforce Feature Toggling
+# Saft - Salesforce Feature Toggling 
+
+<img src=".images/saft-logo.png" alt="saft logo" width="200"/>
 
 ## Overview
 
@@ -62,23 +64,20 @@ if (FeatureToggle.isFeatureEnabled('New_UI', 'Production')) {
 
 To deploy this feature toggling framework to your Salesforce environment:
 
-1. **Create the Custom Metadata Type**:
-   - Navigate to Setup > Custom Metadata Types > New Custom Metadata Type.
-   - Define the `Feature__mdt` type with the required fields.
+1. **Define Environments**:
+   - Create records under the `Environment__mdt` to define your environments
+   - The package comes shipped with predfined environments for `Prod` production environment and `Scratch` orgs. These are referenced in code and should not be altered.
 
 2. **Add Metadata Records**:
    - Create records under the `Feature__mdt` to define your features and their statuses per environment.
 
-3. **Add the Apex Class**:
-   - Copy the `FeatureToggle` class code provided above into a new Apex class in your Salesforce org.
-
-4. **Use the Feature Toggling in Your Code**:
+3. **Use the Feature Toggling in Your Code**:
    - Implement the feature checks in your existing Apex codebase where needed.
 
 ## Best Practices
 
 - **Feature Naming**: Use descriptive and unique names for your features to avoid conflicts and confusion.
-- **Environment Awareness**: Ensure that the `Environment__c` field accurately reflects the environment where the feature is toggled on or off.
+- **Environment Awareness**: Ensure that the `Environment__mdt` accurately reflects the environments and sandbox names.
 - **Version Control**: Track changes to your feature toggles and metadata in version control to maintain a history of what features were enabled when and where.
 - **Testing**: Regularly test your feature toggles in sandbox environments before deploying to production to ensure they work as expected.
 - **Monitoring**: Implement logging or monitoring to track when and where features are toggled, which can help in diagnosing issues.
