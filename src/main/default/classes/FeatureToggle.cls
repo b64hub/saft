@@ -1,40 +1,39 @@
-public with sharing class FeatureToggle {
-    
-    public static Boolean isEnabled(String featureName) {
-        // logic for getting metadata with the same name as featureName, and in the same environment as the current one
-        Environment__mdt currentEnvironment;
+public class FeatureToggle {
 
-        try{
-            currentEnvironment = getCurrentEnvironment();
-        }
-        catch(Exception e){
-            System.debug('Error getting current environment: ' + e.getMessage() + '. stack trace: ' + e.getStackTraceString());
+    static Environment__mdt thisEnv;
+
+    public static Boolean isEnabled(String featureName, Environment__mdt env) {
+
+        if (env == null)
+            System.debug('Invalid environment: ' + env.Label);
             return false;
         }
 
+        Feature__mdt feature  = [SELECT Is_Enabled__c FROM Feature__mdt WHERE Label = :featureName AND Environment__c = :env.Id LIMIT 1];
 
-        Feature__mdt feature;
-
-        try {
-            feature = [SELECT Is_Enabled__c FROM Feature__mdt WHERE SharedFeatureName__c = :featureName AND Environment__c = :currentEnvironment.Id LIMIT 1];
-        }
-        catch (Exception e) {
-            System.debug('Feature not found: ' + featureName + '. message: ' + e.getMessage() + '. stack trace: ' + e.getStackTraceString());
+        if (feature == null)
+            System.debug('Feature not found: ' + featureName);
             return false;
         }
 
         return feature.Is_Enabled__c;
     }
     
+    public static Boolean isEnabled(String featureName) {
+        return isEnabled(featureName, getEnvironment())
+    }
 
+    private static Environment__mdt getEnvironment() {
 
-    private static Environment__mdt getCurrentEnvironment() {
+        if (thisEnv != null) {
+            return thisEnv;
+        }
 
         // checks if in production
         Organization org = [SELECT isSandbox FROM Organization LIMIT 1];
-        if(!org.isSandbox){ // isSandbox is true for both sandbox and scratch orgs, so if false it is production
-            Environment__mdt env = [SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = 'Prod' LIMIT 1];
-            return env;
+        if (!org.isSandbox) {
+            setEnvironment([SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = 'Prod' LIMIT 1]);
+            return thisEnv;
         }
 
         // check if in sandbox or scratch org
@@ -44,16 +43,19 @@ public with sharing class FeatureToggle {
 
         String sandboxName = currentDomain.getSandboxName(); // returns the name of the sandbox, or null if not in a sandbox (as i have checked for production above, null means scratch org)
 
-
-        if(sandboxName == null){
-            Environment__mdt env = [SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = 'Scratch' LIMIT 1];
-            return env;
+        if (sandboxName == null) {
+            setEnvironment([SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = 'Scratch' LIMIT 1]);
+        } else {
+            setEnvironment([SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = :sandboxName LIMIT 1]);
         }
-        else{
-            Environment__mdt env = [SELECT Id, DeveloperName FROM Environment__mdt WHERE DeveloperName = :sandboxName LIMIT 1];
-            return env;
-        }
+        return thisEnv;
     }
+
+    @TestVisible
+    private static setEnvironment(Environment__mdt env) {
+        thisEnv = env;
+    }
+
 }
 
 
@@ -65,14 +67,3 @@ public with sharing class FeatureToggle {
 
 
 
-// Feature__mdt feature;
-
-// try {
-//     feature = [SELECT Is_Enabled__c FROM Feature__mdt WHERE DeveloperName = :featureName LIMIT 1];
-// }
-// catch (Exception e) {
-//     System.debug('Feature not found: ' + featureName + '. message: ' + e.getMessage() + '. stack trace: ' + e.getStackTraceString());
-//     return false;
-// }
-
-// return feature.Is_Enabled__c;
