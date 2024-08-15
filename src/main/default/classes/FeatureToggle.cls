@@ -1,19 +1,47 @@
 public class FeatureToggle {
 
-    static Environment__mdt currentEnv;
+    static Environment__mdt runtimeEnv;
     static Map<String, Boolean> featureCache; 
 
     public class FeatureNotFoundException extends Exception {}
     public class EnvironmentNotFoundException extends Exception {}
 
-    public static Boolean isEnabled(String featureName, Environment__mdt env) {
+    private static Boolean isEnabled(String featureName, Environment__mdt env) {
 
         if (featureCache.containsKey(featureName)) {
             return featureCache.get(featureName);
         }
 
+        Feature__mdt feature = getFeature(featureName, env);
+
+        featureCache.put(featureName, feature.Is_Enabled__c);
+
+        return feature.Is_Enabled__c;
+    }
+
+    public static Boolean isEnabled(String featureName, String environment) {
+        return isEnabled(featureName, getEnvironment(environment));
+    }
+    
+    public static Boolean isEnabled(String featureName) {
+        return isEnabled(featureName, getRuntimeEnvironment());
+    }
+
+    public static Feature__mdt getFeature(String featureName) {
+        return getFeature(featureName, getRuntimeEnvironment());
+    }
+
+    public static Feature__mdt getFeature(String featureName, String environment) {
+        return getFeature(featureName, getEnvironment(environment));
+    }
+
+    public static Feature__mdt getFeature(String featureName, Environment__mdt env) {
+        if (String.isBlank(featureName)) {
+            throw new IllegalArgumentException('Feature cannot be blank');
+        }
+
         if (env == null) {
-            throw new EnvironmentNotFoundException('Environment ' + env + ' not found');
+            throw new EnvironmentNotFoundException('Environment ' + env.Label + ' not found');
         }
 
         Feature__mdt feature  = [SELECT Is_Enabled__c FROM Feature__mdt WHERE Label = :featureName AND Environment__c = :env.Id LIMIT 1];
@@ -22,26 +50,36 @@ public class FeatureToggle {
             throw new FeatureNotFoundException('Feature ' + featureName + ' not found in environment ' + env);
         }
 
-        featureCache.put(featureName, feature.Is_Enabled__c);
-
-        return feature.Is_Enabled__c;
-    }
-    
-    public static Boolean isEnabled(String featureName) {
-        return isEnabled(featureName, getEnvironment());
+        return feature;
     }
 
-    private static Environment__mdt getEnvironment() {
+    private static Environment__mdt getEnvironment(String environment) {
+        if (String.isBlank(environment)) {
+            throw new IllegalArgumentException('Environment cannot be blank');
+        }
 
-        if (currentEnv != null) {
-            return currentEnv;
+        if (String.containsWhitespace(environment)) {
+            throw new IllegalArgumentException('Environment cannot contain white spaces');
+        }
+
+        Environment__mdt env = Environment__mdt.getInstance(env);
+        if (env == null) {
+            throw new EnvironmentNotFoundException('Environment ' + environment + ' not found');
+        }
+        return env;
+    }
+
+    private static Environment__mdt getRuntimeEnvironment() {
+
+        if (runtimeEnv != null) {
+            return runtimeEnv;
         }
 
         // checks if in production
         Organization org = [SELECT isSandbox FROM Organization LIMIT 1];
         if (!org.isSandbox) {
-            setEnvironment(Environment__mdt.getInstance('Prod'));
-            return currentEnv;
+            setEnvironment(getEnvironment('Prod'));
+            return runtimeEnv;
         }
 
         // check if in sandbox or scratch org
@@ -52,16 +90,17 @@ public class FeatureToggle {
         String sandboxName = currentDomain.getSandboxName(); // returns the name of the sandbox, or null if not in a sandbox (as i have checked for production above, null means scratch org)
 
         if (sandboxName == null) {
-            setEnvironment(Environment__mdt.getInstance('Scratch'));
+            setEnvironment(getEnvironment('Scratch'));
         } else {
-            setEnvironment(Environment__mdt.getInstance(sandboxName));
+            setEnvironment(getEnvironment(sandboxName));
         }
-        return currentEnv;
+        
+        return runtimeEnv;
     }
 
     @TestVisible
     private static void setEnvironment(Environment__mdt env) {
-        currentEnv = env;
+        runtimeEnv = env;
     }
 
 }
