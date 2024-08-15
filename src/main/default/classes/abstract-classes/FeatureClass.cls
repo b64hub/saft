@@ -2,7 +2,7 @@
  * This class is an abstract class that is used to check if a feature is enabled or not.
  * the featureEnabled variable is used to check if the feature is enabled or not, it is set after instantiation.
  */
-public abstract with sharing class Feature{
+public abstract class FeatureClass implements IFeature {
 
     public Map<String, Boolean> featureMap = new Map<String, Boolean>();
 
@@ -11,17 +11,11 @@ public abstract with sharing class Feature{
     }
 
     public Boolean isEnabled(String featureName){
-        if(!featureMap.containsKey(featureName)){
-            Boolean featureIsEnabled = FeatureToggle.isEnabled(featureName);
-            featureMap.put(featureName, featureIsEnabled);
-        }
-
-        return featureMap.get(featureName);
+        return FeatureToggle.isEnabled(featureName);
     }
 
     private String getClassName(){
         String totalClassName = String.valueOf(this);
-
         return totalClassName.substring(0, totalClassName.indexOf(':'));
     }
 }
