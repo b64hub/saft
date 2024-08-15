@@ -1,21 +1,24 @@
 public class FeatureToggle {
 
     static Environment__mdt runtimeEnv;
-    static Map<String, Boolean> featureCache; 
+    static Map<String, Map<String, Boolean>> featureCache = new Map<String, Map<String, Boolean>>(); 
 
     public class FeatureNotFoundException extends Exception {}
     public class EnvironmentNotFoundException extends Exception {}
 
     private static Boolean isEnabled(String featureName, Environment__mdt env) {
 
-        if (featureCache.containsKey(featureName)) {
-            return featureCache.get(featureName);
+        if (featureCache.get(env.Label).containsKey(featureName)) {
+            return featureCache.get(env.Label).get(featureName);
         }
 
-        Feature__mdt feature = getFeature(featureName, env);
+        try {
+            Feature__mdt feature = getFeature(featureName, env);
+        } catch (FeatureNotFoundException e) {
+            return false;
+        }
 
-        featureCache.put(featureName, feature.Is_Enabled__c);
-
+        featureCache.get(env.Label).put(featureName, feature.Is_Enabled__c);
         return feature.Is_Enabled__c;
     }
 
