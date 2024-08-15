@@ -3,27 +3,10 @@ public class FeatureToggleTest {
 
     @IsTest
     static void testIsEnabled() {
-        // // logic for getting metadata with the same name as featureName, and in the same environment as the current one
-        // Environment__mdt currentEnvironment;
-
-        // try{
-        //     currentEnvironment = getCurrentEnvironment();
-        // }
-        // catch(Exception e){
-        //     System.debug('Error getting current environment: ' + e.getMessage() + '. stack trace: ' + e.getStackTraceString());
-        //     return false;
-        // }
-
-
-        // Feature__mdt feature;
-
-        // try {
-        //     feature = [SELECT Is_Enabled__c FROM Feature__mdt WHERE SharedFeatureName__c = :featureName AND Environment__c = :currentEnvironment.Id LIMIT 1];
-        // }
-        // catch (Exception e) {
-        //     System.debug('Feature not found: ' + featureName + '. message: ' + e.getMessage() + '. stack trace: ' + e.getStackTraceString());
-        // }
-        return;
+        Test.startTest();
+        Boolean enabled = FeatureToggle.isEnabled('TestFeature');
+        Test.stopTest();
+        System.assertEquals(false, enabled);
     }
     
 

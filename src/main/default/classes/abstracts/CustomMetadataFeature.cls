@@ -14,7 +14,7 @@ public abstract class CustomMetadataFeature implements IFeature {
         try {
             return FeatureToggle.isEnabled(featureName);
         } catch (FeatureToggle.FeatureNotFoundException e) {
-            System.debug(e.getMessage()));
+            System.debug(e.getMessage());
             return false;
         }
     }

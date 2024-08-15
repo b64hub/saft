@@ -12,8 +12,9 @@ public class FeatureToggle {
             return featureCache.get(env.Label).get(featureName);
         }
 
+        Feature__mdt feature;
         try {
-            Feature__mdt feature = getFeature(featureName, env);
+            feature = getFeature(featureName, env);
         } catch (FeatureNotFoundException e) {
             return false;
         }
@@ -28,14 +29,6 @@ public class FeatureToggle {
     
     public static Boolean isEnabled(String featureName) {
         return isEnabled(featureName, getRuntimeEnvironment());
-    }
-
-    public static Feature__mdt getFeature(String featureName) {
-        return getFeature(featureName, getRuntimeEnvironment());
-    }
-
-    public static Feature__mdt getFeature(String featureName, String environment) {
-        return getFeature(featureName, getEnvironment(environment));
     }
 
     public static Feature__mdt getFeature(String featureName, Environment__mdt env) {
@@ -56,16 +49,25 @@ public class FeatureToggle {
         return feature;
     }
 
+    public static Feature__mdt getFeature(String featureName) {
+        return getFeature(featureName, getRuntimeEnvironment());
+    }
+
+    public static Feature__mdt getFeature(String featureName, String environment) {
+        return getFeature(featureName, getEnvironment(environment));
+    }
+
+
     private static Environment__mdt getEnvironment(String environment) {
         if (String.isBlank(environment)) {
             throw new IllegalArgumentException('Environment cannot be blank');
         }
 
-        if (String.containsWhitespace(environment)) {
+        if (environment.containsWhitespace()) {
             throw new IllegalArgumentException('Environment cannot contain white spaces');
         }
 
-        Environment__mdt env = Environment__mdt.getInstance(env);
+        Environment__mdt env = Environment__mdt.getInstance(environment);
         if (env == null) {
             throw new EnvironmentNotFoundException('Environment ' + environment + ' not found');
         }
